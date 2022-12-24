@@ -1,3 +1,3 @@
 package com.example.mathlogic.Expression;
 
-public record SettedVariable(VariableName name, boolean bool) {}
+public record SettedVariable(VariableName name, boolean value) {}

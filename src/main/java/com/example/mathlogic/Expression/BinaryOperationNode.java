@@ -14,4 +14,9 @@ public class BinaryOperationNode extends ExpressionTreeNode{
     }
 
     public boolean doNodeOperation(boolean first, boolean second){ return nodeOperation.doOperation(first, second);}
+
+    @Override
+    public boolean getResult(SettedVariablesMap variablesMap) {
+        return doNodeOperation(firstNode.getResult(variablesMap), secondNode.getResult(variablesMap));
+    }
 }

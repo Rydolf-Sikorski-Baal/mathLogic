@@ -16,4 +16,9 @@ public class UnaryOperationNode extends ExpressionTreeNode{
     }
 
     public boolean doNodeOperation(boolean bool){ return nodeOperation.doOperation(bool);}
+
+    @Override
+    public boolean getResult(SettedVariablesMap variablesMap) {
+        return doNodeOperation(boolNode.getResult(variablesMap));
+    }
 }

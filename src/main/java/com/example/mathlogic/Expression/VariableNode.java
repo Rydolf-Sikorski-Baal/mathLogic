@@ -9,4 +9,9 @@ public class VariableNode extends ExpressionTreeNode{
     public VariableNode(VariableName variableName) {
         this.variableName = variableName;
     }
+
+    @Override
+    public boolean getResult(SettedVariablesMap variablesMap) {
+        return variablesMap.variableMap().get(variableName).value();
+    }
 }
