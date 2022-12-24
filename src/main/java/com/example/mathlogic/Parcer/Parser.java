@@ -43,4 +43,21 @@ public class Parser {
 
         return new ExpressionTree(root, new VariablesList());
     }
+
+    private class ExpressionSequence{}
+    private ExpressionSequence getExpressionSequenceFromString(String expression){
+        ExpressionSequence expressionSequence = new ExpressionSequence();
+
+        return expressionSequence;
+    }
+
+    private ExpressionTreeNode getTreeRootFromSequence(){
+        String nodeType = "";/* SparseTable  */.getMaxFromSequence(int left, int right);
+
+        ExpressionTreeNode node = null;
+        switch(nodeType){
+            case("logicInversion") -> {node = new UnaryOperationNode(new LogicInversion()); break;}
+            default -> {node = null;}
+        }
+    }
 }
