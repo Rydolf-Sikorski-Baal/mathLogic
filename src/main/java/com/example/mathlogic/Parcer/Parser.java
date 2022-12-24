@@ -1,9 +1,8 @@
 package com.example.mathlogic.Parcer;
 
 import com.example.mathlogic.Expression.*;
-import com.example.mathlogic.MathOperations.LogicInversion;
-import com.example.mathlogic.MathOperations.LogicStraight;
-import com.example.mathlogic.MathOperations.UnaryLogicOperation;
+import com.example.mathlogic.MathOperations.*;
+import com.example.mathlogic.SparseTable;
 
 import java.util.*;
 
@@ -42,8 +41,10 @@ public class Parser {
     }
 
     private boolean isEmpty(char ch){return (ch == ' ') || (ch == '\n');}
+    String variableSymbolRegexp = "([])";
     private boolean isCorrectVariableSymbol(char ch){return ch == 'a';}
-    private boolean isCorrectOperatorSymbol(char ch){return ch == '!';}
+    String operatorSymbolRegexp = "[!|&->]";
+    private boolean isCorrectOperatorSymbol(char ch){return ch == '|';}
     private List<String> getExpressionSequenceFromString(char[] expression){
         List<String> expressionSequence = new ArrayList<>();
 
@@ -88,10 +89,14 @@ public class Parser {
                 case OPENING_BRACES:
                     expressionSequence.add("_opBr");
 
+                    ind++;
+
                     state = finiteStates.ANY_TYPE;
                     break;
                 case CLOSING_BRACES:
                     expressionSequence.add("_clBr");
+
+                    ind++;
 
                     state = finiteStates.ANY_TYPE;
                     break;
@@ -100,17 +105,48 @@ public class Parser {
         return expressionSequence;
     }
 
-    private ExpressionTreeNode getTreeRootFromSequence(){
-        String nodeType = "";/* SparseTable  */.getMaxIndexFromSequence(int left, int right);
+    private ExpressionTreeNode getTreeRootFromSequence(int left, int right, ArrayList<String> expressionSequence){
+        SparseTable sparseTable = new SparseTable();
+        int nodeTypeInd = sparseTable.getMaxIndexFromSequence(left, right, expressionSequence);
+        String nodeTypeName = expressionSequence.get(nodeTypeInd);
 
         ExpressionTreeNode node = null;
-        switch(nodeType){
-            /* различные варианты узлов */
-            case("logicInversion") -> {node = new UnaryOperationNode(new LogicInversion()); break;}
-            default -> {node = null;}
+        switch(nodeTypeName){
+            case "_inv"     -> {
+                node = new UnaryOperationNode(new LogicInversion());
+                ((UnaryOperationNode)node)
+                        .setBoolNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size(), expressionSequence));
+                break;
+            }
+            case "_or"      -> {
+                node = new BinaryOperationNode(new LogicSum());
+                ((BinaryOperationNode)node)
+                        .setFirstNode(getTreeRootFromSequence(0, nodeTypeInd - 1, expressionSequence));
+                ((BinaryOperationNode)node)
+                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size(), expressionSequence));
+                break;
+            }
+            case "_and"     -> {
+                node = new BinaryOperationNode(new LogicMultiplication());
+                ((BinaryOperationNode)node)
+                        .setFirstNode(getTreeRootFromSequence(0, nodeTypeInd - 1, expressionSequence));
+                ((BinaryOperationNode)node)
+                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size(), expressionSequence));
+                break;
+            }
+            case "_impl"    -> {
+                node = new BinaryOperationNode(new LogicImplementation());
+                ((BinaryOperationNode)node)
+                        .setFirstNode(getTreeRootFromSequence(0, nodeTypeInd - 1, expressionSequence));
+                ((BinaryOperationNode)node)
+                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size(), expressionSequence));
+                break;
+            }
+            case "_opBr"    -> {}
+            case "clBr"     -> {}
+            default         -> {node = new VariableNode(new VariableName(nodeTypeName));}
         }
 
-        /* вызов этой функции рекурсивно если полученная вершина соответствует операции
-        (один или два вызова в зависимости от типа операции) */
+        return node;
     }
 }
