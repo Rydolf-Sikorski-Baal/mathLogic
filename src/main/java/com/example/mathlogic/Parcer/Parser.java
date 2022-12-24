@@ -5,10 +5,7 @@ import com.example.mathlogic.MathOperations.LogicInversion;
 import com.example.mathlogic.MathOperations.LogicStraight;
 import com.example.mathlogic.MathOperations.UnaryLogicOperation;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Parser {
     private static Parser parserInstance = null;
@@ -44,36 +41,24 @@ public class Parser {
         return new ExpressionTree(root, new VariablesList());
     }
 
-    private class ExpressionSequence{
-        public void addElement(){}
-    }
     private boolean isEmpty(char ch){return (ch == ' ') || (ch == '\n');}
     private boolean isCorrectVariableSymbol(char ch){return ch == 'a';}
-    private ExpressionSequence getExpressionSequenceFromString(char[] expression){
-        ExpressionSequence expressionSequence = new ExpressionSequence();
+    private boolean isCorrectOperatorSymbol(char ch){return ch == '!';}
+    private List<String> getExpressionSequenceFromString(char[] expression){
+        List<String> expressionSequence = new ArrayList<>();
 
         int ind = 0;
 
-        finiteStates state = finiteStates.START;
+        finiteStates state = finiteStates.ANY_TYPE;
         while(state != finiteStates.FINISH)
             switch(state){
                 case ANY_TYPE:
-                    /* необходимо определить тип первого символа (конец строки -> finish) */
-                    switch(expression[ind]){
-                        case '(':
-                            state = finiteStates.OPENING_BRACES;
-                            break;
-                        case ')':
-                            state = finiteStates.CLOSING_BRACES;
-                            break;
-                        case '-':
-                        case '|':
-                        case '&':
-                        case '!':
-                            state = finiteStates.OPERATOR;
-                            break;
-                    }
-                    state = finiteStates.FINISH;
+                    if (expression[ind] == '(')                     state = finiteStates.OPENING_BRACES;
+                    if (expression[ind] == ')')                     state = finiteStates.CLOSING_BRACES;
+                    if (isEmpty(expression[ind]))                   state = finiteStates.SPACE;
+                    if (isCorrectVariableSymbol(expression[ind]))   state = finiteStates.VARIABLE;
+                    if (isCorrectOperatorSymbol(expression[ind]))   state = finiteStates.OPERATOR;
+                    if (expression[ind] == '\0')                    state = finiteStates.FINISH;
                     break;
                 case SPACE:
                     while (isEmpty(expression[ind])) ind++;
@@ -88,25 +73,25 @@ public class Parser {
                         ind++;
                     }
 
-                    /* добавить переменную в множество переменных */
+                    expressionSequence.add(name.toString());
 
                     state = finiteStates.ANY_TYPE;
                     break;
                 case OPERATOR:
-                    if (expression[ind] == '!'){/* добавить элемент в выражение */ ind++;   break;}
-                    if (expression[ind] == '|'){/* добавить элемент в выражение */ ind++;   break;}
-                    if (expression[ind] == '&'){/* добавить элемент в выражение */ ind++;   break;}
-                    if (expression[ind] == '-'){/* добавить элемент в выражение */ ind +=2; break;}
+                    if (expression[ind] == '!'){expressionSequence.add("_inv");  ind++;   break;}
+                    if (expression[ind] == '|'){expressionSequence.add("_or");   ind++;   break;}
+                    if (expression[ind] == '&'){expressionSequence.add("_and");  ind++;   break;}
+                    if (expression[ind] == '-'){expressionSequence.add("_impl"); ind +=2; break;}
 
                     state = finiteStates.ANY_TYPE;
                     break;
                 case OPENING_BRACES:
-                    /* просто занести в выражение и сменить тип */
+                    expressionSequence.add("_opBr");
 
                     state = finiteStates.ANY_TYPE;
                     break;
                 case CLOSING_BRACES:
-                    /* просто занести в выражение и сменить тип */
+                    expressionSequence.add("_clBr");
 
                     state = finiteStates.ANY_TYPE;
                     break;
