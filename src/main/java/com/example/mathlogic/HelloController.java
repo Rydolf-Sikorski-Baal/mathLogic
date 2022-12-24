@@ -12,9 +12,9 @@ import javafx.scene.control.TextField;
 import java.util.HashMap;
 
 public class HelloController {
-    private final Parser parcer;
+    private final Parser parser;
     public HelloController(){
-        parcer = Parser.getInstance();
+        parser = Parser.getInstance();
     }
 
     @FXML
@@ -26,7 +26,7 @@ public class HelloController {
     protected void onCheckButtonClick() {
         String input = inputText.getText();
 
-        ExpressionTree currentTree = parcer.getExpressionTree(input);
+        ExpressionTree currentTree = parser.getExpressionTree(input);
 
         HashMap<VariableName, SettedVariable> map = new HashMap<>();
         for (VariableName variable : currentTree.variables().getVariableList()){

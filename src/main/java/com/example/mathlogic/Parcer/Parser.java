@@ -10,14 +10,26 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class Parser{
+public class Parser {
     private static Parser parserInstance = null;
-    private Parser(){}
 
-    public static Parser getInstance(){
+    private Parser() {
+    }
+
+    public static Parser getInstance() {
         if (parserInstance == null) parserInstance = new Parser();
 
         return parserInstance;
+    }
+
+    private enum finiteStates {
+        START,
+        SPACE,
+        VARIABLE,
+        OPERATOR,
+        OPENING_BRACES,
+        CLOSING_BRACES,
+        FINISH
     }
 
     public ExpressionTree getExpressionTree(String input) {
