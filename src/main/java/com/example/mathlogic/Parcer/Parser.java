@@ -8,10 +8,7 @@ import java.util.*;
 
 public class Parser {
     private static Parser parserInstance = null;
-
-    private Parser() {
-    }
-
+    private Parser() {}
     public static Parser getInstance() {
         if (parserInstance == null) parserInstance = new Parser();
 
@@ -28,16 +25,28 @@ public class Parser {
         FINISH
     }
 
+    VariablesList variablesList;
     public ExpressionTree getExpressionTree(String input) {
-        VariableName a = new VariableName("A");
+        getExpressionSequenceFromString(input.toCharArray());
+        getVariablesListFromExpressionSequence();
+        ExpressionTreeNode root = getTreeRootFromSequence(0, input.length());
 
-        UnaryOperationNode root = new UnaryOperationNode(new LogicInversion());
-        root.setBoolNode(new VariableNode(a));
+        return new ExpressionTree(root, variablesList);
+    }
 
-        VariablesList variablesList = new VariablesList();
-        variablesList.getVariableList().add(a);
+    private void getVariablesListFromExpressionSequence(){
+        variablesList = new VariablesList();
 
-        return new ExpressionTree(root, new VariablesList());
+        for (String current : expressionSequence){
+            if (Objects.equals(current, "_inv")) continue;
+            if (Objects.equals(current, "_or")) continue;
+            if (Objects.equals(current, "_and")) continue;
+            if (Objects.equals(current, "_impl")) continue;
+            if (Objects.equals(current, "_opBr")) continue;
+            if (Objects.equals(current, "_clBr")) continue;
+
+            variablesList.getVariableList().add(new VariableName(current));
+        }
     }
 
     private boolean isEmpty(char ch){return (ch == ' ') || (ch == '\n');}
@@ -45,69 +54,98 @@ public class Parser {
     private boolean isCorrectVariableSymbol(char ch){return ch == 'a';}
     String operatorSymbolRegexp = "[!|&->]";
     private boolean isCorrectOperatorSymbol(char ch){return ch == '|';}
-    private List<String> getExpressionSequenceFromString(char[] expression){
-        List<String> expressionSequence = new ArrayList<>();
+    private void getExpressionSequenceFromString(char[] expression){
+        expressionSequence = new ArrayList<>();
 
         int ind = 0;
 
         finiteStates state = finiteStates.ANY_TYPE;
         while(state != finiteStates.FINISH)
-            switch(state){
-                case ANY_TYPE:
-                    if (expression[ind] == '(')                     state = finiteStates.OPENING_BRACES;
-                    if (expression[ind] == ')')                     state = finiteStates.CLOSING_BRACES;
-                    if (isEmpty(expression[ind]))                   state = finiteStates.SPACE;
-                    if (isCorrectVariableSymbol(expression[ind]))   state = finiteStates.VARIABLE;
-                    if (isCorrectOperatorSymbol(expression[ind]))   state = finiteStates.OPERATOR;
-                    if (expression[ind] == '\0')                    state = finiteStates.FINISH;
-                    break;
-                case SPACE:
+            switch (state) {
+                case ANY_TYPE -> {
+                    if (expression[ind] == '(') state = finiteStates.OPENING_BRACES;
+                    if (expression[ind] == ')') state = finiteStates.CLOSING_BRACES;
+                    if (isEmpty(expression[ind])) state = finiteStates.SPACE;
+                    if (isCorrectVariableSymbol(expression[ind])) state = finiteStates.VARIABLE;
+                    if (isCorrectOperatorSymbol(expression[ind])) state = finiteStates.OPERATOR;
+                    if (expression[ind] == '\0') state = finiteStates.FINISH;
+                }
+                case SPACE -> {
                     while (isEmpty(expression[ind])) ind++;
-
                     state = finiteStates.ANY_TYPE;
-
-                    break;
-                case VARIABLE:
+                }
+                case VARIABLE -> {
                     StringBuilder name = new StringBuilder();
-                    while (isCorrectVariableSymbol(expression[ind])){
+                    while (isCorrectVariableSymbol(expression[ind])) {
                         name.append(expression[ind]);
                         ind++;
                     }
-
                     expressionSequence.add(name.toString());
-
                     state = finiteStates.ANY_TYPE;
-                    break;
-                case OPERATOR:
-                    if (expression[ind] == '!'){expressionSequence.add("_inv");  ind++;   break;}
-                    if (expression[ind] == '|'){expressionSequence.add("_or");   ind++;   break;}
-                    if (expression[ind] == '&'){expressionSequence.add("_and");  ind++;   break;}
-                    if (expression[ind] == '-'){expressionSequence.add("_impl"); ind +=2; break;}
-
+                }
+                case OPERATOR -> {
+                    if (expression[ind] == '!') {
+                        expressionSequence.add("_inv");
+                        ind++;
+                        break;
+                    }
+                    if (expression[ind] == '|') {
+                        expressionSequence.add("_or");
+                        ind++;
+                        break;
+                    }
+                    if (expression[ind] == '&') {
+                        expressionSequence.add("_and");
+                        ind++;
+                        break;
+                    }
+                    if (expression[ind] == '-') {
+                        expressionSequence.add("_impl");
+                        ind += 2;
+                        break;
+                    }
                     state = finiteStates.ANY_TYPE;
-                    break;
-                case OPENING_BRACES:
+                }
+                case OPENING_BRACES -> {
                     expressionSequence.add("_opBr");
-
                     ind++;
-
                     state = finiteStates.ANY_TYPE;
-                    break;
-                case CLOSING_BRACES:
+                }
+                case CLOSING_BRACES -> {
                     expressionSequence.add("_clBr");
-
                     ind++;
-
                     state = finiteStates.ANY_TYPE;
-                    break;
+                }
             }
-
-        return expressionSequence;
     }
 
-    private ExpressionTreeNode getTreeRootFromSequence(int left, int right, ArrayList<String> expressionSequence){
-        SparseTable sparseTable = new SparseTable();
-        int nodeTypeInd = sparseTable.getMaxIndexFromSequence(left, right, expressionSequence);
+    private ArrayList<String> expressionSequence;
+    private SparseTable sparseTable;
+
+    private Integer getPriority(String current){
+        if (Objects.equals(current, "_inv")) return 1;
+        if (Objects.equals(current, "_or")) return 2;
+        if (Objects.equals(current, "_and")) return 2;
+        if (Objects.equals(current, "_impl")) return 3;
+
+        return -1000*1000*1000;
+    }
+    private void getSparseTableFromSequence(){
+        ArrayList<Integer> list = new ArrayList<Integer>();
+
+        int current_delta = 0;
+        for (String current_element : expressionSequence){
+            if (Objects.equals(current_element, "_opBr")) current_delta -= 10;
+            if (Objects.equals(current_element, "_clBr")) current_delta += 10;
+
+            list.add(getPriority(current_element) + current_delta);
+        }
+
+        sparseTable = new SparseTable(list);
+    }
+    private ExpressionTreeNode getTreeRootFromSequence(int left, int right){
+        getSparseTableFromSequence();
+        int nodeTypeInd = sparseTable.getMaxIndexFromSequence(left, right);
         String nodeTypeName = expressionSequence.get(nodeTypeInd);
 
         ExpressionTreeNode node = null;
@@ -115,35 +153,29 @@ public class Parser {
             case "_inv"     -> {
                 node = new UnaryOperationNode(new LogicInversion());
                 ((UnaryOperationNode)node)
-                        .setBoolNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size(), expressionSequence));
-                break;
+                        .setBoolNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size()));
             }
             case "_or"      -> {
                 node = new BinaryOperationNode(new LogicSum());
                 ((BinaryOperationNode)node)
-                        .setFirstNode(getTreeRootFromSequence(0, nodeTypeInd - 1, expressionSequence));
+                        .setFirstNode(getTreeRootFromSequence(0, nodeTypeInd - 1));
                 ((BinaryOperationNode)node)
-                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size(), expressionSequence));
-                break;
+                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size()));
             }
             case "_and"     -> {
                 node = new BinaryOperationNode(new LogicMultiplication());
                 ((BinaryOperationNode)node)
-                        .setFirstNode(getTreeRootFromSequence(0, nodeTypeInd - 1, expressionSequence));
+                        .setFirstNode(getTreeRootFromSequence(0, nodeTypeInd - 1));
                 ((BinaryOperationNode)node)
-                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size(), expressionSequence));
-                break;
+                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size()));
             }
             case "_impl"    -> {
                 node = new BinaryOperationNode(new LogicImplementation());
                 ((BinaryOperationNode)node)
-                        .setFirstNode(getTreeRootFromSequence(0, nodeTypeInd - 1, expressionSequence));
+                        .setFirstNode(getTreeRootFromSequence(0, nodeTypeInd - 1));
                 ((BinaryOperationNode)node)
-                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size(), expressionSequence));
-                break;
+                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size()));
             }
-            case "_opBr"    -> {}
-            case "clBr"     -> {}
             default         -> {node = new VariableNode(new VariableName(nodeTypeName));}
         }
 
