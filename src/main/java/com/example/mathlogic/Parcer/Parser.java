@@ -1,10 +1,14 @@
 package com.example.mathlogic.Parcer;
 
 import com.example.mathlogic.Expression.*;
-import com.example.mathlogic.MathOperations.*;
+import com.example.mathlogic.MathOperations.LogicImplementation;
+import com.example.mathlogic.MathOperations.LogicInversion;
+import com.example.mathlogic.MathOperations.LogicMultiplication;
+import com.example.mathlogic.MathOperations.LogicSum;
 import com.example.mathlogic.SparseTable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Objects;
 
 public class Parser {
     private static Parser parserInstance = null;

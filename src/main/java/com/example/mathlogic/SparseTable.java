@@ -1,7 +1,6 @@
 package com.example.mathlogic;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class SparseTable {
     // Fast log base 2 logarithm lookup table for i, 1 <= i <= n
