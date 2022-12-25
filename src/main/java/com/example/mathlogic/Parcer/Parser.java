@@ -131,7 +131,7 @@ public class Parser {
         return -1000*1000*1000;
     }
     private void getSparseTableFromSequence(){
-        ArrayList<Integer> list = new ArrayList<Integer>();
+        ArrayList<Integer> list = new ArrayList<>();
 
         int current_delta = 0;
         for (String current_element : expressionSequence){
@@ -148,7 +148,7 @@ public class Parser {
         int nodeTypeInd = sparseTable.getMaxIndexFromSequence(left, right);
         String nodeTypeName = expressionSequence.get(nodeTypeInd);
 
-        ExpressionTreeNode node = null;
+        ExpressionTreeNode node;
         switch(nodeTypeName){
             case "_inv"     -> {
                 node = new UnaryOperationNode(new LogicInversion());
@@ -176,7 +176,7 @@ public class Parser {
                 ((BinaryOperationNode)node)
                         .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size()));
             }
-            default         -> {node = new VariableNode(new VariableName(nodeTypeName));}
+            default         -> node = new VariableNode(new VariableName(nodeTypeName));
         }
 
         return node;
