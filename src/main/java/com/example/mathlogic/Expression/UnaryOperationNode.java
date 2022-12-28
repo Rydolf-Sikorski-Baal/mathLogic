@@ -20,4 +20,17 @@ public class UnaryOperationNode extends ExpressionTreeNode{
     public boolean getResult(SettedVariablesMap variablesMap) {
         return doNodeOperation(boolNode.getResult(variablesMap));
     }
+
+    @Override
+    public boolean equals(Object obj){
+        if (obj.getClass() != this.getClass()) return false;
+        return nodeOperation.equals(((UnaryOperationNode) obj).nodeOperation)
+                && (boolNode.equals(((UnaryOperationNode) obj).getBoolNode()));
+    }
+
+    public boolean tryAsSchemeFor(Object obj){
+        if (obj.getClass() != this.getClass()) return false;
+        return nodeOperation.equals(((UnaryOperationNode) obj).nodeOperation)
+                && (boolNode.tryAsSchemeFor(((UnaryOperationNode) obj).getBoolNode()));
+    }
 }

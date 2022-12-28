@@ -5,9 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class BinaryOperationNode extends ExpressionTreeNode{
+    @Getter
     private final BinaryLogicOperation nodeOperation;
-    @Setter @Getter
-    private ExpressionTreeNode firstNode, secondNode;
+    @Getter
+    private ExpressionTreeNode firstNode;
+    @Getter
+    private ExpressionTreeNode secondNode;
 
     public BinaryOperationNode(BinaryLogicOperation nodeOperation) {
         this.nodeOperation = nodeOperation;
@@ -18,5 +21,20 @@ public class BinaryOperationNode extends ExpressionTreeNode{
     @Override
     public boolean getResult(SettedVariablesMap variablesMap) {
         return doNodeOperation(firstNode.getResult(variablesMap), secondNode.getResult(variablesMap));
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        if (obj.getClass() != this.getClass()) return false;
+        return (nodeOperation.equals(((BinaryOperationNode) obj).getNodeOperation())) &&
+                 (firstNode.equals(((BinaryOperationNode) obj).getFirstNode())) &&
+                 (secondNode.equals(((BinaryOperationNode) obj).getSecondNode()));
+    }
+
+    public boolean tryAsSchemeFor(Object obj){
+        if (obj.getClass() != this.getClass()) return false;
+        return (nodeOperation.equals(((BinaryOperationNode) obj).getNodeOperation())) &&
+                (firstNode.tryAsSchemeFor(((BinaryOperationNode) obj).getFirstNode())) &&
+                (secondNode.tryAsSchemeFor(((BinaryOperationNode) obj).getSecondNode()));
     }
 }

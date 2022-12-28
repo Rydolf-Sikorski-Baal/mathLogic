@@ -6,6 +6,7 @@ import com.example.mathlogic.MathOperations.LogicInversion;
 import com.example.mathlogic.MathOperations.LogicMultiplication;
 import com.example.mathlogic.MathOperations.LogicSum;
 import com.example.mathlogic.SparseTable;
+import lombok.NonNull;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -30,7 +31,7 @@ public class Parser {
     }
 
     VariablesList variablesList;
-    public ExpressionTree getExpressionTree(String input) {
+    public ExpressionTree getExpressionTree(@NonNull String input) {
         getExpressionSequenceFromString(input.toCharArray());
         getVariablesListFromExpressionSequence();
         ExpressionTreeNode root = getTreeRootFromSequence(0, input.length());
@@ -126,13 +127,15 @@ public class Parser {
     private ArrayList<String> expressionSequence;
     private SparseTable sparseTable;
 
-    private Integer getPriority(String current){
+    private Integer getPriority(@NonNull String current){
         if (Objects.equals(current, "_inv")) return 1;
-        if (Objects.equals(current, "_or")) return 2;
         if (Objects.equals(current, "_and")) return 2;
-        if (Objects.equals(current, "_impl")) return 3;
+        if (Objects.equals(current, "_or")) return 3;
+        if (Objects.equals(current, "_impl")) return 4;
+        if (Objects.equals(current, "_opBr")) return -1000*1000*1000;
+        if (Objects.equals(current, "_clBr")) return -1000*1000*1000;
 
-        return -1000*1000*1000;
+        return 9;
     }
     private void getSparseTableFromSequence(){
         ArrayList<Integer> list = new ArrayList<>();
