@@ -2,7 +2,6 @@ package com.example.mathlogic.Expression;
 
 import com.example.mathlogic.MathOperations.BinaryLogicOperation;
 import lombok.Getter;
-import lombok.Setter;
 
 public class BinaryOperationNode extends ExpressionTreeNode{
     @Getter

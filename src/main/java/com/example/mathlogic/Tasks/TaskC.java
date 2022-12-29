@@ -1,6 +1,6 @@
 package com.example.mathlogic.Tasks;
 
-import com.example.mathlogic.Expression.*;
+import com.example.mathlogic.Expression.ExpressionTree;
 import com.example.mathlogic.proofs.AbstractNewProofBuilder;
 import com.example.mathlogic.proofs.Proof;
 import com.example.mathlogic.proofs.newClassicProofBuilder;

@@ -6,17 +6,16 @@ import com.example.mathlogic.Expression.ExpressionTreeNode;
 import com.example.mathlogic.Expression.SchemeDecorator.ExpressionAsSchemeDecorator;
 import com.example.mathlogic.Expression.SchemeDecorator.ExpressionAsSchemeDecoratorInterface;
 import com.example.mathlogic.Expression.VariableName;
-import com.example.mathlogic.MathOperations.LogicImplementation;
 import com.example.mathlogic.Parcer.Parser;
 
 import java.util.ArrayList;
 
 public class newClassicProofBuilder extends AbstractNewProofBuilder{
     private final ArrayList<ExpressionTree> hypotheses = new ArrayList<>();
-    private ArrayList<ExpressionTree> axioms;
+    private final ArrayList<ExpressionTree> axioms = new ArrayList<>();
     private ExpressionTree finalStatement;
 
-    private ArrayList<ExpressionTree> statements;
+    private final ArrayList<ExpressionTree> statements = new ArrayList<>();
 
     @Override
     public AbstractNewProofBuilder setHypotheses(ArrayList<ExpressionTree> hypotheses, ExpressionTree excludedHypothesis) {
