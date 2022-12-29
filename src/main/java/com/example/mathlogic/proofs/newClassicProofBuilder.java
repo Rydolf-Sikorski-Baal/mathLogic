@@ -97,8 +97,8 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder{
             ExpressionTreeNode previouslyDeductedLeft = null;
             ExpressionTreeNode previouslyDeductedRight = null;
             for (ExpressionTree prStatement : statements){
-                ExpressionTreeNode prLeft  = ((BinaryOperationNode)currentStatement.root()).getFirstNode();
-                ExpressionTreeNode prRight = ((BinaryOperationNode)currentStatement.root()).getSecondNode();
+                ExpressionTreeNode prLeft  = ((BinaryOperationNode)prStatement.root()).getFirstNode();
+                ExpressionTreeNode prRight = ((BinaryOperationNode)prStatement.root()).getSecondNode();
 
                 if (currentStatement.root().equals(prRight)) {
                     previouslyDeductedLeft  = prLeft;
