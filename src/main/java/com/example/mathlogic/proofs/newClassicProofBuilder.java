@@ -73,7 +73,7 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder{
                 decorator.changeVariableToExpression(new VariableName("B"), currentStatement);
                 statements.add(decorator.getExpression());//hypA -> cSt
             }
-            if (isOneOfAxioms(currentStatement)) { //одна из гипотез
+            if (isOneOfHypotheses(currentStatement)) { //одна из гипотез
                 statements.add(currentStatement);
 
                 ExpressionTree firstExpression = parser.getExpressionTree("A -> (B -> A)");
@@ -89,10 +89,7 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder{
                 statements.add(decorator.getExpression());//hypA -> cSt
             }
             if (hypA.equals(currentStatement) && !selfImplicationAdded) { //hypA
-
-
-
-
+                addSelfImplication(hypA);
                 selfImplicationAdded = true;
             }
             //выводится из доказанного
@@ -108,9 +105,27 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder{
                     previouslyDeductedRight = prRight;
                 }
             }
-            statements.add();//(hypA -> (StI -> cSt)) -> ((hypA -> StI) -> (hypA -> cSt))
-            statements.add();//(hypA -> StI) -> (hypA -> cSt)
-            statements.add();//hypA -> cSt
+            ExpressionTree left = new ExpressionTree(previouslyDeductedLeft, -);
+            ExpressionTree right = new ExpressionTree(previouslyDeductedRight, -);
+
+            ExpressionTree firstExpr = parser.getExpressionTree("(A -> (StI -> cSt)) -> ((A -> StI) -> (A -> cSt))");
+            ExpressionAsSchemeDecoratorInterface decorator = new ExpressionAsSchemeDecorator(firstExpr);
+            decorator.changeVariableToExpression(new VariableName("A"), hypA);
+            decorator.changeVariableToExpression(new VariableName("StI"), left);
+            decorator.changeVariableToExpression(new VariableName("cST"), right);
+            statements.add(firstExpr);//(hypA -> (StI -> cSt)) -> ((hypA -> StI) -> (hypA -> cSt))
+
+            ExpressionTree secondExpr = parser.getExpressionTree("(A -> StI) -> (A -> cSt)");
+            decorator = new ExpressionAsSchemeDecorator(secondExpr);
+            decorator.changeVariableToExpression(new VariableName("A"), hypA);
+            decorator.changeVariableToExpression(new VariableName("StI"), left);
+            decorator.changeVariableToExpression(new VariableName("cST"), right);
+            statements.add(secondExpr);//(hypA -> StI) -> (hypA -> cSt)
+
+            ExpressionTree thirdExpr = parser.getExpressionTree("A -> cSt");
+            decorator.changeVariableToExpression(new VariableName("A"), hypA);
+            decorator.changeVariableToExpression(new VariableName("cST"), right);
+            statements.add(thirdExpr);//hypA -> cSt
         }
         return this;
     }
