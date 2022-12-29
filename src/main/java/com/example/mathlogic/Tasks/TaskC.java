@@ -16,7 +16,6 @@ public class TaskC {
     }
 
     public String getNewProof(Proof oldProof, ExpressionTree hypA){
-        AbstractNewProofBuilder builder = new newClassicProofBuilder();
         Proof newProof = ProofBuilderDirector.getInstance().buildProof(oldProof, hypA);
         return newProof.toString();
     }
