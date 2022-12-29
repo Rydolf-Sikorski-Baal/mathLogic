@@ -3,6 +3,9 @@ package com.example.mathlogic.proofs;
 import com.example.mathlogic.Expression.BinaryOperationNode;
 import com.example.mathlogic.Expression.ExpressionTree;
 import com.example.mathlogic.Expression.ExpressionTreeNode;
+import com.example.mathlogic.Expression.SchemeDecorator.ExpressionAsSchemeDecorator;
+import com.example.mathlogic.Expression.SchemeDecorator.ExpressionAsSchemeDecoratorInterface;
+import com.example.mathlogic.Expression.VariableName;
 import com.example.mathlogic.MathOperations.LogicImplementation;
 import com.example.mathlogic.Parcer.Parser;
 
@@ -53,11 +56,22 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder{
     @Override
     public AbstractNewProofBuilder rebuildProof(ArrayList<ExpressionTree> statements, ExpressionTree hypA) {
         boolean selfImplicationAdded = false;
+        Parser parser = Parser.getInstance();
         for (ExpressionTree currentStatement : statements){
             if (isOneOfAxioms(currentStatement)) { //аксиома
                 statements.add(currentStatement);
-                statements.add();//cSt -> (hypA -> cSt))
-                statements.add();//hypA -> cSt
+
+                ExpressionTree firstExpression = parser.getExpressionTree("A -> (B -> A)");
+                ExpressionAsSchemeDecoratorInterface decorator = new ExpressionAsSchemeDecorator(firstExpression);
+                decorator.changeVariableToExpression(new VariableName("A"), currentStatement);
+                decorator.changeVariableToExpression(new VariableName("B"), hypA);
+                statements.add(decorator.getExpression());//cSt -> (hypA -> cSt))
+
+                ExpressionTree secondExpression = parser.getExpressionTree("A -> B");
+                decorator = new ExpressionAsSchemeDecorator(secondExpression);
+                decorator.changeVariableToExpression(new VariableName("A"), hypA);
+                decorator.changeVariableToExpression(new VariableName("B"), currentStatement);
+                statements.add(decorator.getExpression());//hypA -> cSt
             }
             if (isOneOfAxioms(currentStatement)) { //одна из гипотез
                 statements.add(currentStatement);
