@@ -13,12 +13,13 @@ public class ProofParser {
         return instance;
     }
 
+    Integer ind;
     public Proof parseProofFromString(String input){
-        Integer ind = 0;
+        ind = 0;
         ArrayList<ExpressionTree> axioms = constructClassicAxioms();
-        ArrayList<ExpressionTree> hypotheses = parseHypotheses(input, ind);
-        ExpressionTree finalStatement = parseFinalStatement(input, ind);
-        ArrayList<ExpressionTree> statements = parseStatements(input, ind);
+        ArrayList<ExpressionTree> hypotheses = parseHypotheses(input);
+        ExpressionTree finalStatement = parseFinalStatement(input);
+        ArrayList<ExpressionTree> statements = parseStatements(input);
 
         return new Proof(hypotheses, axioms, finalStatement, statements);
     }
@@ -36,15 +37,50 @@ public class ProofParser {
         return axioms;
     }
 
-    private ArrayList<ExpressionTree> parseHypotheses(String input, Integer ind) {
+    private ArrayList<ExpressionTree> parseHypotheses(String input) {
+        ArrayList<ExpressionTree> hypotheses = new ArrayList<>();
 
+        StringBuilder currentHypothesisString = new StringBuilder();
+        while ((input.charAt(ind) != '|') && (input.charAt(ind + 1) != '-')){
+            if (input.charAt(ind) == ',') {
+                hypotheses.add(parser.getExpressionTree(currentHypothesisString.toString()));
+                currentHypothesisString = new StringBuilder();
+            }
+
+            currentHypothesisString.append(input.charAt(ind));
+            ind++;
+        }
+
+        ind += 2;
+
+        return hypotheses;
     }
 
-    private ExpressionTree parseFinalStatement(String input, Integer ind) {
+    private ExpressionTree parseFinalStatement(String input) {
+        StringBuilder builder = new StringBuilder();
 
+        while (input.charAt(ind) != '\n'){
+            builder.append(input.charAt(ind));
+            ind++;
+        }
+        ind++;
+
+        return parser.getExpressionTree(builder.toString());
     }
 
-    private ArrayList<ExpressionTree> parseStatements(String input, Integer ind) {
+    private ArrayList<ExpressionTree> parseStatements(String input) {
+        ArrayList<ExpressionTree> statements = new ArrayList<>();
 
+        while (ind < input.length()){
+            StringBuilder currentStatementString = new StringBuilder();
+            while ((input.charAt(ind) != '\n') && (input.charAt(ind) != '\0')) {
+                currentStatementString.append(input.charAt(ind));
+                ind++;
+            }
+            statements.add(parser.getExpressionTree(currentStatementString.toString()));
+            ind++;
+        }
+
+        return statements;
     }
 }
