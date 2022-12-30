@@ -1,5 +1,8 @@
 package com.example.mathlogic.Expression;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public record ExpressionTree(ExpressionTreeNode root, VariablesList variables) {
     public boolean checkExpression(SettedVariablesMap variablesMap){
         return root.getResult(variablesMap);
@@ -12,7 +15,17 @@ public record ExpressionTree(ExpressionTreeNode root, VariablesList variables) {
     }
 
     public boolean tryAsSchemeFor(Object obj){
+        Map<VariableName, ExpressionTreeNode> map = new HashMap<>();
+        for (VariableName variableName : this.variables.getVariableList())
+            map.put(variableName, null);
+
         if (obj.getClass() != this.getClass()) return false;
-        return root.tryAsSchemeFor(((ExpressionTree) obj).root);
+
+        boolean result = root.tryAsSchemeFor(((ExpressionTree) obj).root, map);
+
+        for (VariableName variableName : this.variables.getVariableList())
+            if (map.get(variableName) == null) result = false;
+
+        return result;
     }
 }

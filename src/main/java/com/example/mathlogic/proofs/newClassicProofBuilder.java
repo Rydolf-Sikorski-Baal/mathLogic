@@ -1,11 +1,8 @@
 package com.example.mathlogic.proofs;
 
-import com.example.mathlogic.Expression.BinaryOperationNode;
-import com.example.mathlogic.Expression.ExpressionTree;
-import com.example.mathlogic.Expression.ExpressionTreeNode;
+import com.example.mathlogic.Expression.*;
 import com.example.mathlogic.Expression.SchemeDecorator.ExpressionAsSchemeDecorator;
 import com.example.mathlogic.Expression.SchemeDecorator.ExpressionAsSchemeDecoratorInterface;
-import com.example.mathlogic.Expression.VariableName;
 import com.example.mathlogic.Parcer.Parser;
 
 import java.util.ArrayList;
@@ -33,7 +30,7 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder{
         axioms.add(parser.getExpressionTree("(!A -> !B) -> (B -> A)"));
         axioms.add(parser.getExpressionTree("(A & B) -> (!A -> B)"));
         axioms.add(parser.getExpressionTree("(A & B) -> !(!A & !B))"));
-        return null;
+        return this;
     }
 
     @Override
@@ -95,6 +92,7 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder{
             // нужно найти из чего оно выведено (StI -> cSt)
             ExpressionTreeNode previouslyDeductedLeft = null;
             ExpressionTreeNode previouslyDeductedRight = null;
+            VariablesList prVariables = null;
             for (ExpressionTree prStatement : statements){
                 ExpressionTreeNode prLeft  = ((BinaryOperationNode)prStatement.root()).getFirstNode();
                 ExpressionTreeNode prRight = ((BinaryOperationNode)prStatement.root()).getSecondNode();
@@ -102,10 +100,11 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder{
                 if (currentStatement.root().equals(prRight)) {
                     previouslyDeductedLeft  = prLeft;
                     previouslyDeductedRight = prRight;
+                    prVariables = prStatement.variables();
                 }
             }
-            ExpressionTree left = new ExpressionTree(previouslyDeductedLeft, -);
-            ExpressionTree right = new ExpressionTree(previouslyDeductedRight, -);
+            ExpressionTree left = new ExpressionTree(previouslyDeductedLeft, prVariables);
+            ExpressionTree right = new ExpressionTree(previouslyDeductedRight, prVariables);
 
             ExpressionTree firstExpr = parser.getExpressionTree("(A -> (StI -> cSt)) -> ((A -> StI) -> (A -> cSt))");
             ExpressionAsSchemeDecoratorInterface decorator = new ExpressionAsSchemeDecorator(firstExpr);

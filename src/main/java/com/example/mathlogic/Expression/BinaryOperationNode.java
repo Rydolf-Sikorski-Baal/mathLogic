@@ -2,13 +2,16 @@ package com.example.mathlogic.Expression;
 
 import com.example.mathlogic.MathOperations.BinaryLogicOperation;
 import lombok.Getter;
+import lombok.Setter;
+
+import java.util.Map;
 
 public class BinaryOperationNode extends ExpressionTreeNode{
     @Getter
     private final BinaryLogicOperation nodeOperation;
-    @Getter
+    @Getter @Setter
     private ExpressionTreeNode firstNode;
-    @Getter
+    @Getter @Setter
     private ExpressionTreeNode secondNode;
 
     public BinaryOperationNode(BinaryLogicOperation nodeOperation) {
@@ -30,10 +33,10 @@ public class BinaryOperationNode extends ExpressionTreeNode{
                  (secondNode.equals(((BinaryOperationNode) obj).getSecondNode()));
     }
 
-    public boolean tryAsSchemeFor(Object obj){
+    public boolean tryAsSchemeFor(Object obj, Map<VariableName, ExpressionTreeNode> map){
         if (obj.getClass() != this.getClass()) return false;
         return (nodeOperation.equals(((BinaryOperationNode) obj).getNodeOperation())) &&
-                (firstNode.tryAsSchemeFor(((BinaryOperationNode) obj).getFirstNode())) &&
-                (secondNode.tryAsSchemeFor(((BinaryOperationNode) obj).getSecondNode()));
+                (firstNode.tryAsSchemeFor(((BinaryOperationNode) obj).getFirstNode(), map)) &&
+                (secondNode.tryAsSchemeFor(((BinaryOperationNode) obj).getSecondNode(), map));
     }
 }

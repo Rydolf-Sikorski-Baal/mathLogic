@@ -9,6 +9,7 @@ import com.example.mathlogic.SparseTable;
 import lombok.NonNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Objects;
 
 public class Parser {
@@ -34,7 +35,7 @@ public class Parser {
     public ExpressionTree getExpressionTree(@NonNull String input) {
         getExpressionSequenceFromString(input.toCharArray());
         getVariablesListFromExpressionSequence();
-        ExpressionTreeNode root = getTreeRootFromSequence(0, input.length());
+        ExpressionTreeNode root = getTreeRootFromSequence(0, expressionSequence.size() - 1);
 
         return new ExpressionTree(root, variablesList);
     }
@@ -50,15 +51,30 @@ public class Parser {
             if (Objects.equals(current, "_opBr")) continue;
             if (Objects.equals(current, "_clBr")) continue;
 
-            variablesList.getVariableList().add(new VariableName(current));
+            VariableName currentName = new VariableName(current);
+            boolean isNew = true;
+            for (VariableName prName : variablesList.getVariableList())
+                if (prName.equals(currentName)) {
+                    isNew = false;
+                    break;
+                }
+
+            if (isNew) variablesList.getVariableList().add(currentName);
         }
     }
 
-    private boolean isEmpty(char ch){return (ch == ' ') || (ch == '\n');}
+    private boolean isEmpty(char ch){return (ch == ' ') || (ch == '\n') || (ch == '\0');}
     String variableSymbolRegexp = "([])";
-    private boolean isCorrectVariableSymbol(char ch){return ch == 'a';}
+    private boolean isCorrectVariableSymbol(char ch){
+        if (('a' <= ch) && (ch <= 'z')) return true;
+        if (('A' <= ch) && (ch <= 'Z')) return true;
+        if (('0' <= ch) && (ch <= '9')) return true;
+        return ch == '’';
+    }
     String operatorSymbolRegexp = "[!|&->]";
-    private boolean isCorrectOperatorSymbol(char ch){return ch == '|';}
+    private boolean isCorrectOperatorSymbol(char ch){
+        return (ch == '!') || (ch == '|') || (ch == '&') || (ch == '-') || (ch == '>');
+    }
     private void getExpressionSequenceFromString(char[] expression){
         expressionSequence = new ArrayList<>();
 
@@ -68,15 +84,19 @@ public class Parser {
         while(state != finiteStates.FINISH)
             switch (state) {
                 case ANY_TYPE -> {
-                    if (expression[ind] == '(') state = finiteStates.OPENING_BRACES;
-                    if (expression[ind] == ')') state = finiteStates.CLOSING_BRACES;
-                    if (isEmpty(expression[ind])) state = finiteStates.SPACE;
-                    if (isCorrectVariableSymbol(expression[ind])) state = finiteStates.VARIABLE;
-                    if (isCorrectOperatorSymbol(expression[ind])) state = finiteStates.OPERATOR;
+                    if (ind >= expression.length) {state = finiteStates.FINISH; break;}
+                    if (expression[ind] == '(') {state = finiteStates.OPENING_BRACES; break;}
+                    if (expression[ind] == ')') {state = finiteStates.CLOSING_BRACES; break;}
+                    if (isEmpty(expression[ind])) {state = finiteStates.SPACE; break;}
+                    if (isCorrectVariableSymbol(expression[ind])) {state = finiteStates.VARIABLE; break;}
+                    if (isCorrectOperatorSymbol(expression[ind])) {state = finiteStates.OPERATOR; break;}
                     if (expression[ind] == '\0') state = finiteStates.FINISH;
                 }
                 case SPACE -> {
-                    while (isEmpty(expression[ind])) ind++;
+                    while (isEmpty(expression[ind])) {
+                        ind++;
+                        if (ind >= expression.length) break;
+                    }
                     state = finiteStates.ANY_TYPE;
                 }
                 case VARIABLE -> {
@@ -84,6 +104,7 @@ public class Parser {
                     while (isCorrectVariableSymbol(expression[ind])) {
                         name.append(expression[ind]);
                         ind++;
+                        if (ind >= expression.length) break;
                     }
                     expressionSequence.add(name.toString());
                     state = finiteStates.ANY_TYPE;
@@ -92,24 +113,27 @@ public class Parser {
                     if (expression[ind] == '!') {
                         expressionSequence.add("_inv");
                         ind++;
+                        state = finiteStates.ANY_TYPE;
                         break;
                     }
                     if (expression[ind] == '|') {
                         expressionSequence.add("_or");
                         ind++;
+                        state = finiteStates.ANY_TYPE;
                         break;
                     }
                     if (expression[ind] == '&') {
                         expressionSequence.add("_and");
                         ind++;
+                        state = finiteStates.ANY_TYPE;
                         break;
                     }
                     if (expression[ind] == '-') {
                         expressionSequence.add("_impl");
                         ind += 2;
+                        state = finiteStates.ANY_TYPE;
                         break;
                     }
-                    state = finiteStates.ANY_TYPE;
                 }
                 case OPENING_BRACES -> {
                     expressionSequence.add("_opBr");
@@ -128,14 +152,14 @@ public class Parser {
     private SparseTable sparseTable;
 
     private Integer getPriority(@NonNull String current){
-        if (Objects.equals(current, "_inv")) return 1;
-        if (Objects.equals(current, "_and")) return 2;
-        if (Objects.equals(current, "_or")) return 3;
-        if (Objects.equals(current, "_impl")) return 4;
+        if (Objects.equals(current, "_inv")) return 6;
+        if (Objects.equals(current, "_and")) return 7;
+        if (Objects.equals(current, "_or")) return 8;
+        if (Objects.equals(current, "_impl")) return 9;
         if (Objects.equals(current, "_opBr")) return -1000*1000*1000;
         if (Objects.equals(current, "_clBr")) return -1000*1000*1000;
 
-        return 9;
+        return 1;
     }
     private void getSparseTableFromSequence(){
         ArrayList<Integer> list = new ArrayList<>();
@@ -160,28 +184,28 @@ public class Parser {
             case "_inv"     -> {
                 node = new UnaryOperationNode(new LogicInversion());
                 ((UnaryOperationNode)node)
-                        .setBoolNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size()));
+                        .setBoolNode(getTreeRootFromSequence(nodeTypeInd + 1, right));
             }
             case "_or"      -> {
                 node = new BinaryOperationNode(new LogicSum());
                 ((BinaryOperationNode)node)
-                        .setFirstNode(getTreeRootFromSequence(0, nodeTypeInd - 1));
+                        .setFirstNode(getTreeRootFromSequence(left, nodeTypeInd - 1));
                 ((BinaryOperationNode)node)
-                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size()));
+                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, right));
             }
             case "_and"     -> {
                 node = new BinaryOperationNode(new LogicMultiplication());
                 ((BinaryOperationNode)node)
-                        .setFirstNode(getTreeRootFromSequence(0, nodeTypeInd - 1));
+                        .setFirstNode(getTreeRootFromSequence(left, nodeTypeInd - 1));
                 ((BinaryOperationNode)node)
-                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size()));
+                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, right));
             }
             case "_impl"    -> {
                 node = new BinaryOperationNode(new LogicImplementation());
                 ((BinaryOperationNode)node)
-                        .setFirstNode(getTreeRootFromSequence(0, nodeTypeInd - 1));
+                        .setFirstNode(getTreeRootFromSequence(left, nodeTypeInd - 1));
                 ((BinaryOperationNode)node)
-                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, expressionSequence.size()));
+                        .setSecondNode(getTreeRootFromSequence(nodeTypeInd + 1, right));
             }
             default         -> node = new VariableNode(new VariableName(nodeTypeName));
         }

@@ -14,4 +14,6 @@
 
     <TextField fx:id="inputText"/>
     <Button text="Check" onAction="#onCheckButtonClick"/>
+    <Button text="Rebuild" onAction="#onRebuildButtonClick"/>
+    <TextField fx:id="resultText"/>
 </VBox>

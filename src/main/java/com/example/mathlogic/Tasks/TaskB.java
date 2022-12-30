@@ -1,6 +1,7 @@
 package com.example.mathlogic.Tasks;
 
 import com.example.mathlogic.Expression.*;
+import javafx.util.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,13 +9,16 @@ import java.util.Map;
 public class TaskB {
     private static TaskB taskBInstance = null;
     private TaskB(){}
-    public TaskB getInstance(){
+    public static TaskB getInstance(){
         if (taskBInstance == null) taskBInstance = new TaskB();
 
         return taskBInstance;
     }
 
-    public void checkExpression(ExpressionTree tree){
+    public Pair<Integer, Integer> checkExpression(ExpressionTree tree){
+        Integer trueCases = 0;
+        Integer falseCases = 0;
+
         VariablesList variablesList = tree.variables();
         Map<VariableName, SettedVariable> map = new HashMap<>();
 
@@ -24,7 +28,15 @@ public class TaskB {
 
         SettedVariablesMap settedVariablesMap = new SettedVariablesMap(map);
 
-        while (iterate(variablesList, settedVariablesMap)) tree.checkExpression(settedVariablesMap);
+        do{
+            if (tree.checkExpression(settedVariablesMap)){
+                trueCases++;
+            }else{
+                falseCases++;
+            }
+        }while (iterate(variablesList, settedVariablesMap));
+
+        return new Pair<>(trueCases, falseCases);
     }
 
     private boolean iterate(VariablesList list, SettedVariablesMap map){
