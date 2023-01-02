@@ -39,9 +39,9 @@ public class HelloController {
         ExpressionTree currentTree = parser.getExpressionTree(input);
 
         TaskB taskB = TaskB.getInstance();
-        Pair<Integer, Integer> result = taskB.checkExpression(currentTree);
+        String result = taskB.checkExpression(currentTree);
 
-        resultText.setText(result.toString());
+        resultText.setText(result);
     }
 
     public void onRebuildButtonClick() {

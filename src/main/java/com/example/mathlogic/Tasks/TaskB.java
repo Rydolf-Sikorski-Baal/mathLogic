@@ -15,9 +15,9 @@ public class TaskB {
         return taskBInstance;
     }
 
-    public Pair<Integer, Integer> checkExpression(ExpressionTree tree){
-        Integer trueCases = 0;
-        Integer falseCases = 0;
+    public String checkExpression(ExpressionTree tree){
+        int trueCases = 0;
+        int falseCases = 0;
 
         VariablesList variablesList = tree.variables();
         Map<VariableName, SettedVariable> map = new HashMap<>();
@@ -36,7 +36,9 @@ public class TaskB {
             }
         }while (iterate(variablesList, settedVariablesMap));
 
-        return new Pair<>(trueCases, falseCases);
+        if (trueCases == 0) return "Unsatisfiable";
+        if (falseCases == 0) return "Valid";
+        return "Satisfiable and invalid, " + trueCases + " true and " + falseCases + " false cases";
     }
 
     private boolean iterate(VariablesList list, SettedVariablesMap map){

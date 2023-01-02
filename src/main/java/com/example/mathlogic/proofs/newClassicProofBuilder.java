@@ -107,6 +107,7 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder{
             ExpressionTreeNode previouslyDeductedRight = null;
             VariablesList prVariables = null;
             for (ExpressionTree prStatement : oldStatements){
+                if (prStatement.root().getClass() != BinaryOperationNode.class) continue;
                 ExpressionTreeNode prLeft  = ((BinaryOperationNode)prStatement.root()).getFirstNode();
                 ExpressionTreeNode prRight = ((BinaryOperationNode)prStatement.root()).getSecondNode();
 
@@ -114,6 +115,7 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder{
                     previouslyDeductedLeft  = prLeft;
                     previouslyDeductedRight = prRight;
                     prVariables = prStatement.variables();
+                    break;
                 }
             }
             ExpressionTree left = new ExpressionTree(previouslyDeductedLeft, prVariables);
@@ -123,19 +125,20 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder{
             ExpressionAsSchemeDecoratorInterface decorator = new ExpressionAsSchemeDecorator(firstExpr);
             decorator.changeVariableToExpression(new VariableName("_A"), hypA);
             decorator.changeVariableToExpression(new VariableName("_StI"), left);
-            decorator.changeVariableToExpression(new VariableName("_cST"), right);
+            decorator.changeVariableToExpression(new VariableName("_cSt"), right);
             statements.add(firstExpr);//(hypA -> (StI -> cSt)) -> ((hypA -> StI) -> (hypA -> cSt))
 
             ExpressionTree secondExpr = parser.getExpressionTree("(_A -> _StI) -> (_A -> _cSt)");
             decorator = new ExpressionAsSchemeDecorator(secondExpr);
             decorator.changeVariableToExpression(new VariableName("_A"), hypA);
             decorator.changeVariableToExpression(new VariableName("_StI"), left);
-            decorator.changeVariableToExpression(new VariableName("_cST"), right);
+            decorator.changeVariableToExpression(new VariableName("_cSt"), right);
             statements.add(secondExpr);//(hypA -> StI) -> (hypA -> cSt)
 
             ExpressionTree thirdExpr = parser.getExpressionTree("_A -> _cSt");
+            decorator = new ExpressionAsSchemeDecorator(thirdExpr);
             decorator.changeVariableToExpression(new VariableName("_A"), hypA);
-            decorator.changeVariableToExpression(new VariableName("_cST"), right);
+            decorator.changeVariableToExpression(new VariableName("_cSt"), right);
             statements.add(thirdExpr);//hypA -> cSt
         }
         return this;
@@ -155,12 +158,12 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder{
         decorator.changeVariableToExpression(AName, hypA);
         statements.add(secondExpr);//hypA -> ((hypA -> hypA) -> hypA)
 
-        ExpressionTree thirdExpr = parser.getExpressionTree("(A -> ((A -> A) -> A)) -> ((A -> (A -> A)) -> (A -> A))");
+        ExpressionTree thirdExpr = parser.getExpressionTree("(A -> ((A -> A) -> A)) -> ((A -> ((A -> A) -> A)) -> (A -> A))");
         decorator = new ExpressionAsSchemeDecorator(thirdExpr);
         decorator.changeVariableToExpression(AName, hypA);
         statements.add(thirdExpr);//( hypA -> ((hypA -> hypA) -> hypA) ) -> ( (hypA -> (hypA -> hypA)) -> (hypA -> hypA) )
 
-        ExpressionTree forthExpr = parser.getExpressionTree("(A -> (A -> A)) -> (A -> A)");
+        ExpressionTree forthExpr = parser.getExpressionTree("(A -> ((A -> A) -> A)) -> (A -> A)");
         decorator = new ExpressionAsSchemeDecorator(forthExpr);
         decorator.changeVariableToExpression(AName, hypA);
         statements.add(forthExpr);//(hypA -> (hypA -> hypA)) -> (hypA -> hypA)
