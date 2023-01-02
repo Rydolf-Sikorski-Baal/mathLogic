@@ -50,6 +50,7 @@ public class ProofParser {
             currentHypothesisString.append(input.charAt(ind));
             ind++;
         }
+        hypotheses.add(parser.getExpressionTree(currentHypothesisString.toString()));
 
         ind += 2;
 
@@ -71,11 +72,12 @@ public class ProofParser {
     private ArrayList<ExpressionTree> parseStatements(String input) {
         ArrayList<ExpressionTree> statements = new ArrayList<>();
 
-        while (ind < input.length()){
+        while (ind <= input.length() - 1){
             StringBuilder currentStatementString = new StringBuilder();
-            while ((input.charAt(ind) != '\n') && (input.charAt(ind) != '\0')) {
+            while ((input.charAt(ind) != '\n') && (input.charAt(ind) != '\0') && (ind <= input.length() - 1)) {
                 currentStatementString.append(input.charAt(ind));
                 ind++;
+                if (ind == input.length()) break;
             }
             statements.add(parser.getExpressionTree(currentStatementString.toString()));
             ind++;

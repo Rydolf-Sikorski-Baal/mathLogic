@@ -33,4 +33,9 @@ public class VariableNode extends ExpressionTreeNode{
 
         return constructedMap.get(this.variableName).equals(obj);
     }
+
+    @Override
+    public String toString(){
+        return this.variableName.name();
+    }
 }

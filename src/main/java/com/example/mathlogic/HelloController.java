@@ -10,7 +10,9 @@ import com.example.mathlogic.Tasks.TaskB;
 import com.example.mathlogic.Tasks.TaskC;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.util.Pair;
 
@@ -24,9 +26,9 @@ public class HelloController {
     }
 
     @FXML
-    public TextField resultText;
+    public TextArea resultText;
     @FXML
-    public TextField inputText;
+    public TextArea inputText;
     @FXML
     public Button Check;
 
@@ -42,7 +44,10 @@ public class HelloController {
         resultText.setText(result.toString());
     }
 
-    public void onRebuildButtonClick(ActionEvent actionEvent) {
+    public void onRebuildButtonClick() {
+        this.resultText.getScene().getWindow().setHeight(1000);
+        this.resultText.getScene().getWindow().setWidth(1000);
+
         String input = inputText.getText();
 
         ProofParser parser = ProofParser.getInstance();

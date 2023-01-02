@@ -39,4 +39,9 @@ public class BinaryOperationNode extends ExpressionTreeNode{
                 (firstNode.tryAsSchemeFor(((BinaryOperationNode) obj).getFirstNode(), map)) &&
                 (secondNode.tryAsSchemeFor(((BinaryOperationNode) obj).getSecondNode(), map));
     }
+
+    @Override
+    public String toString(){
+        return '(' + this.firstNode.toString() + this.nodeOperation.toString() + this.secondNode.toString() + ')';
+    }
 }

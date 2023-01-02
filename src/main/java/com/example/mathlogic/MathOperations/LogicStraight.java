@@ -5,4 +5,9 @@ public class LogicStraight extends UnaryLogicOperation{
     public boolean doOperation(boolean bool) {
         return bool;
     }
+
+    @Override
+    public String toString(){
+        return "";
+    }
 }

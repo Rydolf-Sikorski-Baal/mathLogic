@@ -10,28 +10,35 @@ public class ExpressionAsSchemeDecorator extends AbstractExpressionAsSchemeDecor
     @Override
     public boolean changeVariableToExpression(VariableName variableName, ExpressionTree expression) {
         for (VariableName currentVariableName : super.getExpression().variables().getVariableList())
-            if (currentVariableName.equals(variableName))
-                return changeCheckedVariableToExpression(variableName, expression, this.getExpression().root());
+            if (currentVariableName.equals(variableName)) {
+                changeCheckedVariableToExpression(variableName, expression, this.getExpression().root());
+                return true;
+            }
         return false;
     }
 
-    private boolean changeCheckedVariableToExpression(VariableName variableName, ExpressionTree expression, ExpressionTreeNode node){
-        if (node.getClass() == VariableNode.class){
-            if (((VariableNode) node).getVariableName().equals(variableName)) node = expression.root();
-            return true;
-        }
-
+    private void changeCheckedVariableToExpression(VariableName variableName, ExpressionTree expression, ExpressionTreeNode node){
         if(node.getClass() == UnaryOperationNode.class){
-            return changeCheckedVariableToExpression(variableName, expression, ((UnaryOperationNode) node).getBoolNode());
+            if ((((UnaryOperationNode) node).getBoolNode()).equals(new VariableNode(variableName))){
+                ((UnaryOperationNode) node).setBoolNode(expression.root());
+                return;
+            }
+
+            changeCheckedVariableToExpression(variableName, expression, ((UnaryOperationNode) node).getBoolNode());
         }
 
         if (node.getClass() == BinaryOperationNode.class){
-            return
-                    changeCheckedVariableToExpression(variableName, expression, ((BinaryOperationNode) node).getFirstNode())
-                    &&
-                    changeCheckedVariableToExpression(variableName, expression, ((BinaryOperationNode) node).getSecondNode());
-        }
+            if ((((BinaryOperationNode) node).getFirstNode()).equals(new VariableNode(variableName))){
+                ((BinaryOperationNode) node).setFirstNode(expression.root());
+            }else {
+                changeCheckedVariableToExpression(variableName, expression, ((BinaryOperationNode) node).getFirstNode());
+            }
 
-        return false;
+            if ((((BinaryOperationNode) node).getSecondNode()).equals(new VariableNode(variableName))){
+                ((BinaryOperationNode) node).setSecondNode(expression.root());
+            }else{
+                changeCheckedVariableToExpression(variableName, expression, ((BinaryOperationNode) node).getSecondNode());
+            }
+        }
     }
 }

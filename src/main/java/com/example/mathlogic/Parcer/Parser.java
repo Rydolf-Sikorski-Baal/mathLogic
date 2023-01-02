@@ -69,6 +69,7 @@ public class Parser {
         if (('a' <= ch) && (ch <= 'z')) return true;
         if (('A' <= ch) && (ch <= 'Z')) return true;
         if (('0' <= ch) && (ch <= '9')) return true;
+        if (ch == '_') return true;
         return ch == '’';
     }
     String operatorSymbolRegexp = "[!|&->]";

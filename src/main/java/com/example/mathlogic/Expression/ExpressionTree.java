@@ -28,4 +28,9 @@ public record ExpressionTree(ExpressionTreeNode root, VariablesList variables) {
 
         return result;
     }
+
+    @Override
+    public String toString(){
+        return root.toString();
+    }
 }

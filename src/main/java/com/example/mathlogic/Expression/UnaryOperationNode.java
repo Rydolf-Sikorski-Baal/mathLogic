@@ -35,4 +35,9 @@ public class UnaryOperationNode extends ExpressionTreeNode{
         return nodeOperation.equals(((UnaryOperationNode) obj).nodeOperation)
                 && (boolNode.tryAsSchemeFor(((UnaryOperationNode) obj).getBoolNode(), map));
     }
+
+    @Override
+    public String toString(){
+        return this.nodeOperation.toString() + '(' + this.boolNode.toString() + ')';
+    }
 }
