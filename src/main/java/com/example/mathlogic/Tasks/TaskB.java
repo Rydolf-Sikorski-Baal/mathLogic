@@ -1,8 +1,11 @@
 package com.example.mathlogic.Tasks;
 
 import com.example.mathlogic.Expression.*;
-import javafx.util.Pair;
+import com.example.mathlogic.Parcer.Parser;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,6 +16,19 @@ public class TaskB {
         if (taskBInstance == null) taskBInstance = new TaskB();
 
         return taskBInstance;
+    }
+
+    public static void main(String[] args) throws IOException {
+        TaskB taskB = TaskB.getInstance();
+
+        Parser parser = Parser.getInstance();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String input = reader.readLine();
+
+        String result = taskB.checkExpression(parser.getExpressionTree(input));
+
+        System.out.print(result);
     }
 
     public String checkExpression(ExpressionTree tree){

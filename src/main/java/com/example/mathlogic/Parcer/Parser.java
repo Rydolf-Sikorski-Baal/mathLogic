@@ -9,7 +9,6 @@ import com.example.mathlogic.SparseTable;
 import lombok.NonNull;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Objects;
 
 public class Parser {

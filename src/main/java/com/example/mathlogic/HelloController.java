@@ -1,22 +1,13 @@
 package com.example.mathlogic;
 
 import com.example.mathlogic.Expression.ExpressionTree;
-import com.example.mathlogic.Expression.SettedVariable;
-import com.example.mathlogic.Expression.SettedVariablesMap;
-import com.example.mathlogic.Expression.VariableName;
 import com.example.mathlogic.Parcer.Parser;
 import com.example.mathlogic.Parcer.ProofParser;
 import com.example.mathlogic.Tasks.TaskB;
 import com.example.mathlogic.Tasks.TaskC;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.util.Pair;
-
-import java.util.HashMap;
 
 public class HelloController {
     private final Parser parser;
